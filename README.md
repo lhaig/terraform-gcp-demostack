@@ -1,5 +1,7 @@
 # terraform-gcp-demostack
-    This Project configures Nomad, Vault and Consul on a variable amount of servers and workers. it already set up some nomad jobs, vault configurations and Consul queries. this is meant as a reference (and a demo environment) and really shouldnt be used for production. 
+    This Project configures Nomad, Vault and Consul on a variable amount of servers and workers. 
+    it already set up some nomad jobs, vault configurations and Consul queries. 
+    This is meant as a reference (and a demo environment) and really shouldnt be used for production. 
 ## Solution Diagram
 ![Solution Diagram](./assets/Demostack_overview.png)
 
