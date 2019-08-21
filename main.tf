@@ -68,6 +68,7 @@ module "primarycluster" {
   public_key            = var.public_key
   gcp_region            = var.gcp_region
   gcp_project           = var.gcp_project
+  gcp_dns_zone_name     = var.gcp_dns_zone_name
   run_nomad_jobs        = var.run_nomad_jobs
   sentinel_url          = var.sentinel_url
   servers               = var.servers

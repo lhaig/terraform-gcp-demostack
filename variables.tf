@@ -7,6 +7,10 @@ variable "gcp_region" {
   default     = "europe-west3"
 }
 
+variable "gcp_dns_zone_name" {
+  description = "The name of the dns zone record in the GCP DNS console Not the FQDN"
+}
+
 variable "crypto_key" {
   default     = "vault-demostack-key"
   description = "Crypto key name to create under the key ring"
@@ -114,11 +118,11 @@ default     = "3"
 
 variable "instance_type_server" {
 description = "GCP machine type"
-default     = "n1-standard-4"
+default     = "n1-standard-2"
 }
 variable "instance_type_worker" {
 description = "GCP machine type"
-default     = "n1-standard-4"
+default     = "n1-standard-2"
 }
 
 variable "cust_name" {

@@ -136,3 +136,13 @@ resource "google_compute_disk" "server-second" {
   size  = "50"
 }
 
+resource "google_dns_record_set" "servers" {
+  count = var.servers
+  name = "${element(google_compute_instance.server.*.name, count.index)}.${data.google_dns_managed_zone.dns_zone.dns_name}"
+  type = "A"
+  ttl  = 300
+
+  managed_zone = data.google_dns_managed_zone.dns_zone.name
+
+  rrdatas = ["${element(google_compute_instance.server.*.network_interface.0.access_config.0.nat_ip, count.index)}"]
+}

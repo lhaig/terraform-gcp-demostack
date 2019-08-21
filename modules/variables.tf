@@ -31,6 +31,11 @@ variable "gcp_region" {
   description = "GCP region, e.g. us-east1"
 }
 
+variable "gcp_dns_zone_name" {
+  description = "The name of the dns zone record in the GCP DNS console Not the FQDN"
+}
+
+
 variable "crypto_key" {
   default     = "vault-demostack-key"
   description = "Crypto key name to create under the key ring"

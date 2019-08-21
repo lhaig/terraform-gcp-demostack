@@ -133,3 +133,15 @@ resource "google_compute_disk" "workers-second" {
   zone = data.google_compute_zones.available.names[count.index]
   size = "50"
 }
+
+# Create For Loop for workers o assign fqdn's to the ip.
+resource "google_dns_record_set" "workers" {
+  count = var.workers
+  name = "${element(google_compute_instance.workers.*.name, count.index)}.${data.google_dns_managed_zone.dns_zone.dns_name}"
+  type = "A"
+  ttl  = 300
+
+  managed_zone = data.google_dns_managed_zone.dns_zone.name
+
+  rrdatas = ["${element(google_compute_instance.workers.*.network_interface.0.access_config.0.nat_ip, count.index)}"]
+}

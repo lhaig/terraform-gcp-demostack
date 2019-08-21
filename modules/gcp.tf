@@ -1,6 +1,11 @@
 data "google_compute_zones" "available" {
 }
 
+data "google_dns_managed_zone" "dns_zone" {
+  name = var.gcp_dns_zone_name
+}
+
+
 resource "google_service_account" "demostack_service_account" {
   account_id   = "demo-${var.namespace}-gcpkms"
   display_name = "Vault KMS for auto-unseal"

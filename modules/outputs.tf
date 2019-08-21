@@ -26,15 +26,18 @@ output "workers_public_ip" {
 }
 
 output "hashi_ui" {
-  value = "${formatlist("http://%s:3000", google_compute_instance.workers.*.network_interface.0.access_config.0.nat_ip,)}"
+  value = [ 
+    for record in google_dns_record_set.workers:
+      "http://${substr(record.name, 0, length(record.name) -1)}:3000"
+  ]
 }
 
 output "fabio_lb" {
-  value = "http://${google_compute_forwarding_rule.fabio.ip_address}:9998"
+  value = "http://${substr(google_dns_record_set.fabio.name, 0, length(google_dns_record_set.fabio.name) -1)}:9998"
 }
 
 output "vault_ui" {
-  value = "http://${google_compute_forwarding_rule.vault.ip_address}:8200"
+  value = "https://${substr(google_dns_record_set.vault.name, 0, length(google_dns_record_set.vault.name) -1)}:8200"
 }
 
 
@@ -42,21 +45,27 @@ output "vault_ui" {
 # Nomad Outputs
 
 output "nomad_ui" {
-  value = "http://${google_compute_forwarding_rule.nomad.ip_address}:4646"
+  value = "http://${substr(google_dns_record_set.nomad.name, 0, length(google_dns_record_set.nomad.name) -1)}:4646"
 }
 
 output "nomad_workers_consul_ui" {
-  value = "${formatlist("http://%s:8500/", google_compute_instance.workers.*.network_interface.0.access_config.0.nat_ip,)}"
+  value = [ 
+    for record in google_dns_record_set.workers:
+      "http://${substr(record.name, 0, length(record.name) -1)}:8500"
+  ]
 }
 
 output "nomad_workers_ui" {
-  value = "${formatlist("http://%s:3000/", google_compute_instance.workers.*.network_interface.0.access_config.0.nat_ip)}"
+  value = [ 
+    for record in google_dns_record_set.workers:
+      "http://${substr(record.name, 0, length(record.name) -1)}:3000"
+  ]
 }
 
 # Consul Outputs
 
 output "consul_ui" {
-  value = "http://${google_compute_forwarding_rule.consul.ip_address}:8500"
+  value = "https://${substr(google_dns_record_set.consul.name, 0, length(google_dns_record_set.consul.name) -1)}:8500"
 }
 
 output "consul_forwarding_rule_link" {
