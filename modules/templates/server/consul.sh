@@ -64,7 +64,8 @@ sudo tee /etc/consul.d/config.json > /dev/null <<EOF
     "upgrade_version_tag": "build"
   },
   "node_meta": {
-    "build": "1.0.0"
+    "build": "1.0.0",
+    "type" : "server"
   },
   "connect":{
     "enabled": true,

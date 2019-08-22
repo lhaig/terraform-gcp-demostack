@@ -52,6 +52,10 @@ client {
     "driver.raw_exec.enable" = "1"
      "docker.privileged.enabled" = "true"
   }
+  meta {
+    "type" = "server"
+    "name" = "${node_name}"
+  }
 }
 
 tls {

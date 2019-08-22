@@ -54,7 +54,10 @@ vault {
   cert_file = "/etc/ssl/certs/me.crt"
   key_file  = "/etc/ssl/certs/me.key"
 }
-
+meta {
+    "type" = "worker"
+    "name" = "${node_name}"
+  }
 autopilot {
   cleanup_dead_servers = true
   last_contact_threshold = "200ms"
