@@ -1,14 +1,16 @@
 //--------------------------EMEA-SE_PLAYGROUND------------------------------------------
+
 # Using a single workspace:
 terraform {
   backend "remote" {
     hostname     = "app.terraform.io"
     organization = "emea-se-playground-2019"
     workspaces {
-      name = "Lance-GCP-Demostack"
+      name = "GUY-GCP-Demostack"
     }
   }
 }
+
 
 // Workspace Data
 data "terraform_remote_state" "emea_se_playground_tls_root_certificate" {
@@ -25,7 +27,7 @@ data "terraform_remote_state" "emea_se_playground_tls_root_certificate" {
 provider "google" {
   version = "~> 2.9"
   project = var.gcp_project
-  region  = var.gcp_region
+  region  = var.primary_region
 }
 
 data "google_compute_zones" "available" {
@@ -45,7 +47,6 @@ module "primarycluster" {
   consullicense         = var.consullicense
   consul_url            = var.consul_url
   consul_ent_url        = var.consul_ent_url
-  consul_template_url   = var.consul_template_url
   consul_join_tag_value = "${var.namespace}-${data.terraform_remote_state.emea_se_playground_tls_root_certificate.outputs.consul_join_tag_value}"
   consul_gossip_key     = data.terraform_remote_state.emea_se_playground_tls_root_certificate.outputs.consul_gossip_key
   consul_master_token   = data.terraform_remote_state.emea_se_playground_tls_root_certificate.outputs.consul_master_token
@@ -53,9 +54,6 @@ module "primarycluster" {
   demo_username         = var.demo_username
   demo_password         = var.demo_password
   enterprise            = var.enterprise
-  envconsul_url         = var.envconsul_url
-  fabio_url             = var.fabio_url
-  hashiui_url           = var.hashiui_url
   instance_type_server  = var.instance_type_server
   instance_type_worker  = var.instance_type_worker
   namespace             = var.primary_namespace
@@ -66,20 +64,20 @@ module "primarycluster" {
   nomad_ent_url         = var.nomad_ent_url
   owner                 = var.owner
   public_key            = var.public_key
-  gcp_region            = var.gcp_region
+  region                = var.primary_region
   gcp_project           = var.gcp_project
   gcp_dns_zone_name     = var.gcp_dns_zone_name
-  run_nomad_jobs        = var.run_nomad_jobs
-  sentinel_url          = var.sentinel_url
   servers               = var.servers
   ssh_user              = var.ssh_user
   sleep-at-night        = var.sleep-at-night
-  terraform_url         = var.terraform_url
   TTL                   = var.TTL
   vault_url             = var.vault_url
   vault_ent_url         = var.vault_ent_url
   vaultlicense          = var.vaultlicense
+  nomadlicense          = var.nomadlicense
   vpc_cidr_block        = var.vpc_cidr_block
   workers               = var.workers
   zones                 = data.google_compute_zones.available
+  primary_datacenter    = var.primary_datacenter
+  
 }

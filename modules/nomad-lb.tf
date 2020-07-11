@@ -12,7 +12,7 @@ resource "google_compute_forwarding_rule" "nomad" {
 resource "google_compute_target_pool" "nomad" {
   project          = var.gcp_project
   name             = "${var.cust_name}-nom-tp"
-  region           = var.gcp_region
+  region           = var.region
   session_affinity = "CLIENT_IP"
 
   instances = [ 

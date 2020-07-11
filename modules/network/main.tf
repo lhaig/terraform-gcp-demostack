@@ -7,14 +7,14 @@ resource "google_compute_network" "mainnetwork" {
 resource "google_compute_subnetwork" "subnet" {
     description             = "Main Subnet"
     name                    = "${var.cust_name}-vpc-subnet"
-    ip_cidr_range           = "${var.vpc_cidr_block}"
-    network                 = "${google_compute_network.mainnetwork.self_link}"
+    ip_cidr_range           = var.vpc_cidr_block
+    network                 = google_compute_network.mainnetwork.self_link
 
 }
 
 resource "google_compute_firewall" "default" {
   name                    = "${var.cust_name}-fw"
-  network                 = "${google_compute_network.mainnetwork.self_link}"
+  network                 = google_compute_network.mainnetwork.self_link
 
   allow {
     protocol = "icmp"

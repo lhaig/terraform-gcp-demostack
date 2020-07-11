@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-set -e
-
 echo "==> Base"
 
 echo "==> libc6 issue workaround"
@@ -56,9 +54,24 @@ sudo tee /etc/ssl/certs/me.key > /dev/null <<EOF
 ${me_key}
 EOF
 
-echo "--> Installing common dependencies"
+echo "--> Setting iptables for bridge networking"
+echo 1 > /proc/sys/net/bridge/bridge-nf-call-arptables
+echo 1 > /proc/sys/net/bridge/bridge-nf-call-ip6tables
+echo 1 > /proc/sys/net/bridge/bridge-nf-call-iptables
+
+echo "--> Making iptables settings for bridge networking config change"
+sudo tee /etc/sysctl.d/nomadtables > /dev/null <<EOF
+net.bridge.bridge-nf-call-arptables = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+EOF
+
+echo "--> updated version of Nodejs"
+curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+
 ssh-apt install \
   build-essential \
+  nodejs \
   curl \
   emacs \
   git \
@@ -68,17 +81,17 @@ ssh-apt install \
   vim \
   wget \
   tree \
+  nfs-kernel-server \
+  nfs-common \
   python3-pip \
   ruby-full \
-  npm \
+  apt-transport-https \
+  ca-certificates \
+  curl \
+  gnupg-agent \
+  software-properties-common \
+  openjdk-9-jdk-headless \
   &>/dev/null
-
-echo "--> Installing git secrets"
-git clone https://github.com/awslabs/git-secrets
-cd git-secrets
-sudo make install
-cd -
-rm -rf git-secrets
 
 echo "--> Disabling checkpoint"
 sudo tee /etc/profile.d/checkpoint.sh > /dev/null <<"EOF"
@@ -93,5 +106,14 @@ echo "--> Configuring DNSmasq"
 sudo bash -c "cat >/etc/dnsmasq.d/10-consul" << EOF
 server=/consul/127.0.0.1#8600
 EOF
+
+echo "--> Install Envoy"
+curl -sL 'https://getenvoy.io/gpg' | sudo apt-key add -
+sudo add-apt-repository \
+"deb [arch=amd64] https://dl.bintray.com/tetrate/getenvoy-deb \
+$(lsb_release -cs) \
+stable"
+sudo apt-get update && sudo apt-get install -y getenvoy-envoy=1.14.1.p0.g3504d40-1p63.g902f20f
+envoy --version
 
 echo "==> Base is done!"

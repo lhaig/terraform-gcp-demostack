@@ -27,7 +27,7 @@ variable "gcp_project" {
   description = "GCP project name"
 }
 
-variable "gcp_region" {
+variable "region" {
   description = "GCP region, e.g. us-east1"
 }
 
@@ -52,26 +52,6 @@ variable "consul_ent_url" {
   description = "The url to download Consul."
 }
 
-variable "sentinel_url" {
-  description = "The url to download Sentinel simulator."
-}
-
-variable "consul_template_url" {
-  description = "The url to download Consul Template."
-}
-
-variable "envconsul_url" {
-  description = "The url to download Envconsul."
-}
-
-variable "fabio_url" {
-  description = "The url download fabio."
-}
-
-variable "hashiui_url" {
-  description = "The url to download hashi-ui."
-}
-
 variable "nomad_url" {
   description = "The url to download nomad."
 }
@@ -80,9 +60,6 @@ variable "nomad_ent_url" {
   description = "The url to download nomad."
 }
 
-variable "terraform_url" {
-  description = "The url to download terraform."
-}
 
 variable "vault_url" {
   description = "The url to download vault."
@@ -179,6 +156,12 @@ description = "Enterprise License for Consul"
 default     = ""
 }
 
+
+variable "nomadlicense" {
+  description = "Enterprise License for Nomad"
+  default     = ""
+}
+
 variable "ca_key_algorithm" {
 default = ""
 }
@@ -225,4 +208,15 @@ variable "network-main" {
 
 variable "network-sub" {
   description = "Computed Subnetwork link"
+}
+
+variable "cni_plugin_url" {
+  description = "The url to download teh CNI plugin for nomad."
+  default     = "https://github.com/containernetworking/plugins/releases/download/v0.8.2/cni-plugins-linux-amd64-v0.8.2.tgz"
+}
+
+
+variable "primary_datacenter"{
+  description = "the primary datacenter for mesh gateways"
+  default = ""
 }

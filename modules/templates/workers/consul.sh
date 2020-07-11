@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-set -e
-
 echo "==> Consul (client)"
 
 echo "==> Consul (server)"
@@ -18,47 +16,41 @@ sudo mkdir -p /mnt/consul
 sudo mkdir -p /etc/consul.d
 sudo tee /etc/consul.d/config.json > /dev/null <<EOF
 {
-  "datacenter": "${gcp_region}-dc",
+  "datacenter": "${namespace}",
   "advertise_addr": "$(private_ip)",
-  "advertise_addr_wan": "$(public_ip)",
   "bind_addr": "0.0.0.0",
+  "client_addr": "0.0.0.0",
   "data_dir": "/mnt/consul",
-  "disable_update_check": true,
   "encrypt": "${consul_gossip_key}",
   "leave_on_terminate": true,
   "node_name": "${node_name}",
   "raft_protocol": 3,
   "retry_join": ["provider=gce project_name=${gcp_project} tag_value=${consul_join_tag_value}"],
-  
-  "addresses": {
-    "http": "0.0.0.0",
-    "https": "0.0.0.0",
-    "gRPC": "0.0.0.0"
-  },
   "ports": {
     "http": 8500,
     "https": 8501,
-    "gRPC": 8502
+    "grpc": 8502
   },
-  "ca_file": "/usr/local/share/ca-certificates/01-me.crt",
-  "auto_encrypt": {
-    "tls": false
-  },
-  "verify_server_hostname": false,
-  "verify_incoming": false,
-  "verify_outgoing": false,
   "ui": true,
   "connect":{
-    "enabled": true,
-    "ca_provider":"consul"
-
+    "enabled": true
+  },
+  "autopilot": {
+    "cleanup_dead_servers": true,
+    "last_contact_threshold": "200ms",
+    "max_trailing_logs": 250,
+    "server_stabilization_time": "10s",
+    "disable_upgrade_migration": false
+  },
+  "telemetry": {
+    "disable_hostname": true,
+    "prometheus_retention_time": "30s"
   }
 }
 EOF
-
 sudo tee /etc/consul.d/backup.json > /dev/null <<EOF
 {
-  "datacenter": "${gcp_region}-dc",
+  "datacenter": "${region}",
   "advertise_addr": "$(private_ip)",
   "advertise_addr_wan": "$(public_ip)",
   "bind_addr": "0.0.0.0",

@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-set -e
-
 echo "==> Vault (client)"
 
 echo "--> Fetching"
@@ -33,10 +31,5 @@ EOF
 sudo systemctl enable vault
 sleep 2
 
-
-
-echo "--> Installing completions"
-sudo su ${demo_username} \
-  -c 'vault -autocomplete-install'
 
 echo "==> Vault is done!"

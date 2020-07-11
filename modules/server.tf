@@ -4,28 +4,30 @@ data "template_file" "server" {
   template = "${join("\n", list(
     file("${path.module}/templates/shared/base.sh"),
     file("${path.module}/templates/shared/docker.sh"),
-    file("${path.module}/templates/shared/run-proxy.sh"),
     file("${path.module}/templates/server/consul.sh"),
     file("${path.module}/templates/server/vault.sh"),
     file("${path.module}/templates/server/nomad.sh"),
-    file("${path.module}/templates/server/nomad-jobs.sh"),
   ))}"
 
   vars = {
-    gcp_region             = var.gcp_region
+
+    region                 = var.region
     gcp_project            = var.gcp_project
     key_ring               = google_kms_key_ring.key_ring.name
     crypto_key             = var.crypto_key
     keyring_location       = var.keyring_location
+    
     enterprise             = var.enterprise
-    vaultlicense           = var.vaultlicense
-    consullicense          = var.consullicense
+    
     namespace              = var.namespace
     node_name              = "${var.cust_name}-server-${count.index}"
+    
     me_ca                  = var.ca_cert_pem
     me_cert                = element(tls_locally_signed_cert.server.*.cert_pem, count.index)
     me_key                 = element(tls_private_key.server.*.private_key_pem, count.index)
+    
     # Consul
+    primary_datacenter    = var.primary_datacenter
     consul_url             = var.consul_url
     consul_ent_url         = var.consul_ent_url
     consul_gossip_key      = var.consul_gossip_key
@@ -33,15 +35,18 @@ data "template_file" "server" {
     consul_join_tag_value  = var.consul_join_tag_value
     consul_master_token    = var.consul_master_token
     consul_servers         = var.servers
+    consullicense          = var.consullicense
+    
     # Nomad
     nomad_url              = var.nomad_url
+    nomad_ent_url        = var.nomad_ent_url
     nomad_gossip_key       = var.nomad_gossip_key
     nomad_servers          = var.servers
-    # Nomad jobs
-    fabio_url              = var.fabio_url
-    hashiui_url            = var.hashiui_url
-    run_nomad_jobs         = var.run_nomad_jobs
+    cni_plugin_url   = var.cni_plugin_url
+    nomadlicense           = var.nomadlicense
+
     # Vault
+    vaultlicense           = var.vaultlicense
     vault_url              = var.vault_url
     vault_ent_url          = var.vault_ent_url
     vault_root_token       = random_id.vault-root-token.hex

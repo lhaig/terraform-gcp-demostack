@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-set -e
 
 echo "--> Formatting disk"
 sudo mkfs.xfs -K /dev/xvdb

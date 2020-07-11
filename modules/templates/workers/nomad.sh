@@ -1,10 +1,27 @@
 #!/usr/bin/env bash
-set -e
-
-echo "==> Nomad (client)"
 
 echo "--> Fetching"
+echo "==> Nomad (server)"
+if [ ${enterprise} == 0 ]
+then
+echo "--> Fetching OSS binaries"
 install_from_url "nomad" "${nomad_url}"
+else
+echo "--> Fetching enterprise binaries"
+install_from_url "nomad" "${nomad_ent_url}"
+fi
+
+echo "--> Create a Directory to Use as a Mount Target"
+sudo mkdir -p /opt/mysql/data/
+sudo mkdir -p /opt/mongodb/data/
+sudo mkdir -p /opt/prometheus/data/
+
+
+echo "--> Installing CNI plugin"
+sudo mkdir -p /opt/cni/bin/
+wget -O cni.tgz ${cni_plugin_url}
+sudo tar -xzf cni.tgz -C /opt/cni/bin/
+
 
 echo "--> Installing"
 sudo mkdir -p /mnt/nomad
@@ -13,61 +30,75 @@ sudo tee /etc/nomad.d/config.hcl > /dev/null <<EOF
 name         = "${node_name}"
 data_dir     = "/mnt/nomad"
 enable_debug = true
-
 bind_addr = "0.0.0.0"
-
-datacenter = "${gcp_region}-dc"
-
-region = "global"
-
-
-
+datacenter = "${namespace}"
+region = "${region}"
 advertise {
   http = "$(public_ip):4646"
   rpc  = "$(public_ip):4647"
   serf = "$(public_ip):4648"
 }
-
 client {
   enabled = true
-     options = {
+   options {
     "driver.raw_exec.enable" = "1"
      "docker.privileged.enabled" = "true"
   }
+  meta {
+    "type" = "worker",
+    "name" = "${node_name}"
+  }
+  host_volume "mysql_mount" {
+    path      = "/opt/mysql/data"
+    read_only = false
+  }
+  host_volume "mongodb_mount" {
+    path      = "/opt/mongodb/data"
+    read_only = false
+  }
+  host_volume "prometheus_mount" {
+    path      = "/opt/prometheus/data/"
+    read_only = false
+  }
 }
-
 tls {
   rpc  = true
   http = true
-
   ca_file   = "/usr/local/share/ca-certificates/01-me.crt"
   cert_file = "/etc/ssl/certs/me.crt"
   key_file  = "/etc/ssl/certs/me.key"
-
   verify_server_hostname = false
 }
-
+consul {
+    address = "localhost:8500"
+    server_service_name = "nomad-server"
+    client_service_name = "nomad-client"
+    auto_advertise = true
+    server_auto_join = true
+    client_auto_join = true
+}
 vault {
-  enabled   = true
-  address          = "https://vault.query.consul:8200"
-  ca_file   = "/usr/local/share/ca-certificates/01-me.crt"
-  cert_file = "/etc/ssl/certs/me.crt"
-  key_file  = "/etc/ssl/certs/me.key"
+  enabled          = true
+  address          = "https://active.vault.service.consul:8200"
+  ca_file          = "/usr/local/share/ca-certificates/01-me.crt"
+  cert_file        = "/etc/ssl/certs/me.crt"
+  key_file         = "/etc/ssl/certs/me.key"
+  create_from_role = "nomad-cluster"
 }
-meta {
-    "type" = "worker"
-    "name" = "${node_name}"
-  }
 autopilot {
-  cleanup_dead_servers = true
-  last_contact_threshold = "200ms"
-  max_trailing_logs = 250
-  server_stabilization_time = "10s"
-  enable_redundancy_zones = false
-  disable_upgrade_migration = false
-  enable_custom_upgrades = false
+    cleanup_dead_servers = true
+    last_contact_threshold = "200ms"
+    max_trailing_logs = 250
+    server_stabilization_time = "10s"
+    enable_redundancy_zones = false
+    disable_upgrade_migration = false
+    enable_custom_upgrades = false
 }
-
+telemetry {
+  publish_allocation_metrics = true
+  publish_node_metrics = true
+  prometheus_metrics = true
+}
 EOF
 
 echo "--> Writing profile"
@@ -107,13 +138,19 @@ sudo systemctl start nomad
 
 echo "--> Creating workspace"
 sudo mkdir -p /workstation/nomad
-
-echo "--> Changing ownership"
-sudo chown -R "${demo_username}:${demo_username}" "/workstation/nomad"
-
-echo "--> Installing completions"
-sudo su ${demo_username} \
-  -c 'nomad -autocomplete-install'
+cd /workstation/nomad
+sudo git clone https://github.com/GuyBarros/nomad_jobs
+cd nomad_jobs
 
 
-echo "==> Nomad is done!"
+echo "--> Waiting for Vault leader"
+while ! host active.vault.service.consul &> /dev/null; do
+  sleep 5
+done
+
+echo "--> Waiting for Nomad leader"
+while [ -z "$(curl -s https://localhost:4646/v1/status/leader)" ]; do
+  sleep 5
+done
+
+echo "==> Run Nomad is Done!"

@@ -19,6 +19,7 @@ servers = 3
 workers = 3
 vaultlicense = "aaaaaaaaaa"
 consullicense = "bbbbbbbbb"
+nomadlicense = "cccccccccc"
 enterprise = false
 #---------------------------------------------------
 # To specify a version different from the default

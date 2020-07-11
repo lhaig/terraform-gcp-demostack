@@ -1,10 +1,14 @@
-variable "gcp_project" {
-  description = "GCP project name"
+data "http" "myipaddr" {
+    url = "http://ipv4.icanhazip.com"
 }
 
-variable "gcp_region" {
-  description = "GCP region, e.g. us-east1"
-  default     = "europe-west3"
+locals {
+   host_access_ip = ["${chomp(data.http.myipaddr.body)}/32"]
+}
+
+
+variable "gcp_project" {
+  description = "GCP project name"
 }
 
 variable "gcp_dns_zone_name" {
@@ -46,6 +50,40 @@ EOH
 default = "primarystack"
 }
 
+
+variable "secondary_namespace" {
+  description = <<EOH
+this is the differantiates different demostack deployment on the same subscription, everycluster should have a different value
+EOH
+
+  default = "secondarystack"
+}
+
+variable "tertiary_namespace" {
+  description = <<EOH
+this is the differantiates different demostack deployment on the same subscription, everycluster should have a different value
+EOH
+
+  default = "tertiarystack"
+}
+
+
+variable "primary_region" {
+  description = "GCP region, e.g. us-east1"
+  default     = "europe-west3"
+}
+
+variable "secondary_region" {
+  description = "GCP region, e.g. us-east1"
+  default     = "europe-west1"
+}
+
+variable "tertiary_region" {
+  description = "GCP region, e.g. us-east1"
+  default     = "europe-west2"
+}
+
+
 variable "consul_url" {
   description = "The url to download Consul."
   default = "https://releases.hashicorp.com/consul/1.5.3/consul_1.5.3_linux_amd64.zip"
@@ -54,31 +92,6 @@ variable "consul_url" {
 variable "consul_ent_url" {
   description = "The url to download Consul."
   default = "https://s3-us-west-2.amazonaws.com/hc-enterprise-binaries/consul/ent/1.5.3/consul-enterprise_1.5.3%2Bent_linux_amd64.zip"
-}
-
-variable "sentinel_url" {
-  description = "The url to download Sentinel simulator."
-  default = "https://releases.hashicorp.com/sentinel/0.10.3/sentinel_0.10.3_linux_amd64.zip"
-}
-
-variable "consul_template_url" {
-  description = "The url to download Consul Template."
-  default = "https://releases.hashicorp.com/consul-template/0.21.0/consul-template_0.21.0_linux_amd64.zip"
-}
-
-variable "envconsul_url" {
-  description = "The url to download Envconsul."
-  default = "https://releases.hashicorp.com/envconsul/0.7.3/envconsul_0.7.3_linux_amd64.zip"
-}
-
-variable "fabio_url" {
-  description = "The url download fabio."
-  default = "https://github.com/fabiolb/fabio/releases/download/v1.5.11/fabio-1.5.11-go1.11.5-linux_amd64"
-}
-
-variable "hashiui_url" {
-  description = "The url to download hashi-ui."
-  default = "https://github.com/jippi/hashi-ui/releases/download/v0.26.1/hashi-ui-linux-amd64"
 }
 
 variable "nomad_url" {
@@ -91,9 +104,9 @@ variable "nomad_ent_url" {
   default = "https://releases.hashicorp.com/nomad/0.9.4/nomad_0.9.4_linux_amd64.zip"
 }
 
-variable "terraform_url" {
-  description = "The url to download terraform."
-  default = "https://releases.hashicorp.com/terraform/0.12.6/terraform_0.12.6_linux_amd64.zip"
+variable "cni_plugin_url" {
+  description = "The url to download teh CNI plugin for nomad."
+  default     = "https://github.com/containernetworking/plugins/releases/download/v0.8.2/cni-plugins-linux-amd64-v0.8.2.tgz"
 }
 
 variable "vault_url" {
@@ -193,6 +206,11 @@ description = "Enterprise License for Consul"
 default     = ""
 }
 
+variable "nomadlicense" {
+  description = "Enterprise License for Nomad"
+  default     = ""
+}
+
 variable "ca_key_algorithm" {
 default = ""
 }
@@ -225,7 +243,8 @@ variable "nomad_gossip_key" {
 default = ""
 }
 
-variable "run_nomad_jobs" {
-default = 1
-}
 
+variable "primary_datacenter"{
+  description = "the primary datacenter for mesh gateways"
+  default = ""
+}

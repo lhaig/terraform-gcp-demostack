@@ -12,7 +12,7 @@ resource "google_compute_forwarding_rule" "fabio" {
 resource "google_compute_target_pool" "fabio" {
   project          = var.gcp_project
   name             = "${var.cust_name}-fab-tp"
-  region           = var.gcp_region
+  region           = var.region
   session_affinity = "CLIENT_IP"
 
   instances = [ 

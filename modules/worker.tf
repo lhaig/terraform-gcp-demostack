@@ -1,26 +1,21 @@
 data "template_file" "workers" {
   count = var.workers
 
-  template = join(
-    "\n",
-    [
-      file("${path.module}/templates/shared/base.sh"),
-      file("${path.module}/templates/shared/docker.sh"),
-      file("${path.module}/templates/shared/run-proxy.sh"),
-      file("${path.module}/templates/workers/user.sh"),
-      file("${path.module}/templates/workers/consul.sh"),
-      file("${path.module}/templates/workers/vault.sh"),
-      file("${path.module}/templates/workers/nomad.sh"),
-      file("${path.module}/templates/workers/nomadjobs.sh"),
-    ],
-  )
+template = "${join("\n", list(
+    file("${path.module}/templates/shared/base.sh"),
+    file("${path.module}/templates/shared/docker.sh"),
+    file("${path.module}/templates/workers/consul.sh"),
+    file("${path.module}/templates/workers/vault.sh"),
+    file("${path.module}/templates/workers/nomad.sh"),
+    ))}"
 
   vars = {
     namespace             = var.namespace
+
     node_name             = "${var.cust_name}-workers-${count.index}"
     identity              = "${var.cust_name}-workers-${count.index}"
     enterprise            = var.enterprise
-    gcp_region            = var.gcp_region
+    region                = var.region
     gcp_project           = var.gcp_project
     me_ca                 = var.ca_cert_pem
     me_cert               = element(tls_locally_signed_cert.workers.*.cert_pem, count.index)
@@ -34,15 +29,10 @@ data "template_file" "workers" {
     consul_gossip_key     = var.consul_gossip_key
     consul_join_tag_key   = "ConsulJoin"
     consul_join_tag_value = var.consul_join_tag_value
-    # Terraform
-    terraform_url         = var.terraform_url
-    # Tools
-    consul_template_url   = var.consul_template_url
-    envconsul_url         = var.envconsul_url
-    sentinel_url          = var.sentinel_url
     # Nomad
     nomad_url             = var.nomad_url
-    run_nomad_jobs        = var.run_nomad_jobs
+    nomad_ent_url        = var.nomad_ent_url
+    cni_plugin_url = var.cni_plugin_url
     # Vault
     vault_url             = var.vault_url
     vault_ent_url         = var.vault_ent_url
