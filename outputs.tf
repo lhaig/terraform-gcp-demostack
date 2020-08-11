@@ -24,10 +24,6 @@ output "Primary_Fabio" {
   value = module.primarycluster.fabio_lb
 }
 
-output "Primary_Hashi_UI" {
-  value = module.primarycluster.hashi_ui
-}
-
 output "Primary_ssh_Worked_Nodes" {
   value = [module.primarycluster.ssh_for_workers]
 }

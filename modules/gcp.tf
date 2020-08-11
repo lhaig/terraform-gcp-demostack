@@ -12,9 +12,10 @@ resource "google_service_account" "demostack_service_account" {
 }
 
 resource "google_project_iam_custom_role" "demostack" {
-  role_id     = "DemostackRole"
-  title       = "demostack_role"
+  role_id     = "GCPDemostackRole"
+  title       = "gcp_demostack_role"
   description = "Demostack Custom Role"
+  project     = var.gcp_project
   permissions = [
     "compute.instances.list", 
     "compute.zones.list",

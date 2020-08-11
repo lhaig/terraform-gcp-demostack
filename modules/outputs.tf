@@ -25,12 +25,6 @@ output "workers_public_ip" {
   value = [google_compute_instance.workers.*.network_interface.0.access_config.0.nat_ip]
 }
 
-output "hashi_ui" {
-  value = [ 
-    for record in google_dns_record_set.workers:
-      "http://${substr(record.name, 0, length(record.name) -1)}:3000"
-  ]
-}
 
 output "fabio_lb" {
   value = "http://${substr(google_dns_record_set.fabio.name, 0, length(google_dns_record_set.fabio.name) -1)}:9998"
@@ -65,7 +59,7 @@ output "nomad_workers_ui" {
 # Consul Outputs
 
 output "consul_ui" {
-  value = "https://${substr(google_dns_record_set.consul.name, 0, length(google_dns_record_set.consul.name) -1)}:8500"
+  value = "http://${substr(google_dns_record_set.consul.name, 0, length(google_dns_record_set.consul.name) -1)}:8500"
 }
 
 output "consul_forwarding_rule_link" {
