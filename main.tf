@@ -23,7 +23,7 @@ data "terraform_remote_state" "emea_se_playground_tls_root_certificate" {
 }
 
 provider "google" {
-  version = "~> 2.9"
+  #version = "~> 2.9" # Deprecated versioning.
   project = var.gcp_project
   region  = var.gcp_region
 }
