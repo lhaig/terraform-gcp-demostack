@@ -1,7 +1,7 @@
 data "template_file" "server" {
   count = var.servers
 
-  template = "${join("\n", list(
+  template = "${join("\n", tolist(
     file("${path.module}/templates/shared/base.sh"),
     file("${path.module}/templates/shared/docker.sh"),
     file("${path.module}/templates/shared/run-proxy.sh"),
